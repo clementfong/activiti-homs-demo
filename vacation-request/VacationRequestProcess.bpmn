@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="vacationRequestProcess" name="Vacation Request" isExecutable="true">
+    <extensionElements>
+      <activiti:eventListener events="ACTIVITY_CANCELLED,ACTIVITY_COMPENSATE,ACTIVITY_COMPLETED,ACTIVITY_ERROR_RECEIVED,ACTIVITY_MESSAGE_RECEIVED,ACTIVITY_SIGNALED,ACTIVITY_STARTED,ENTITY_ACTIVATED,ENTITY_CREATED,ENTITY_DELETED,ENTITY_INITIALIZED,ENTITY_SUSPENDED,ENTITY_UPDATED" class="org.activiti.latera.bss.eventListeners.EventLogging"></activiti:eventListener>
+      <activiti:eventListener events="ACTIVITY_COMPLETED" class="org.activiti.latera.homs.eventListeners.AutoSaveOrderData"></activiti:eventListener>
+    </extensionElements>
+    <startEvent id="startevent1" name="Start">
+      <extensionElements>
+        <activiti:executionListener event="end" class="org.activiti.latera.bss.executionListeners.InitLogging"></activiti:executionListener>
+      </extensionElements>
+    </startEvent>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <userTask id="usertask1" name="Handle Request" activiti:assignee="${initiator}" activiti:formKey="handle_request.yml"></userTask>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway" default="flow6"></exclusiveGateway>
+    <userTask id="usertask4" name="Adjust Request" activiti:assignee="${initiator}" activiti:formKey="adjust_request.yml"></userTask>
+    <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway" default="flow9"></exclusiveGateway>
+    <endEvent id="endevent1" name="End">
+      <extensionElements>
+        <activiti:executionListener event="start" class="org.activiti.latera.homs.executionListeners.FinishOrder"></activiti:executionListener>
+      </extensionElements>
+    </endEvent>
+    <endEvent id="endevent2" name="End">
+      <extensionElements>
+        <activiti:executionListener event="start" class="org.activiti.latera.homs.executionListeners.FinishOrder"></activiti:executionListener>
+      </extensionElements>
+    </endEvent>
+    <sequenceFlow id="flow2" sourceRef="exclusivegateway1" targetRef="usertask1"></sequenceFlow>
+    <sequenceFlow id="flow6" name="Disapproved" sourceRef="exclusivegateway2" targetRef="usertask4"></sequenceFlow>
+    <sequenceFlow id="flow8" sourceRef="usertask4" targetRef="exclusivegateway3"></sequenceFlow>
+    <sequenceFlow id="flow9" name="Cancel Request" sourceRef="exclusivegateway3" targetRef="endevent2"></sequenceFlow>
+    <sequenceFlow id="flow10" name="Resend" sourceRef="exclusivegateway3" targetRef="exclusivegateway1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${homsOrderDataAdjustResult == 'Resend'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow11" sourceRef="usertask1" targetRef="exclusivegateway2"></sequenceFlow>
+    <serviceTask id="mailtask1" name="Send Confirmation Email" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${homsOrderDataEmployeeEmail}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:string><![CDATA[mailrobot@example.com]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:string><![CDATA[Vacation request approved]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="text">
+          <activiti:expression>Hello ${homsOrderDataEmployeeFirstName}!
+
+Your vacation request was successfully approved. Have a nice holidays!</activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow12" sourceRef="mailtask1" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow13" name="Approved" sourceRef="exclusivegateway2" targetRef="mailtask1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${homsOrderDataResolution == 'Approved'}]]></conditionExpression>
+    </sequenceFlow>
+    <scriptTask id="scripttask1" name="Set Process Parameters" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <extensionElements>
+        <activiti:executionListener event="end" class="org.activiti.latera.homs.executionListeners.StartOrder"></activiti:executionListener>
+        <activiti:executionListener event="end" class="org.activiti.latera.homs.executionListeners.GetOrderData"></activiti:executionListener>
+      </extensionElements>
+      <script>// homs parameters
+execution.setVariable("homsUrl", "http://localhost:3000")
+execution.setVariable("homsUser", "user@example.com")
+execution.setVariable("homsPassword", "RENEWMEPLEASE")</script>
+    </scriptTask>
+    <sequenceFlow id="flow14" sourceRef="startevent1" targetRef="scripttask1"></sequenceFlow>
+    <sequenceFlow id="flow15" sourceRef="scripttask1" targetRef="exclusivegateway1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_vacationRequestProcess">
+    <bpmndi:BPMNPlane bpmnElement="vacationRequestProcess" id="BPMNPlane_vacationRequestProcess">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="120.0" y="250.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="330.0" y="247.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
+        <omgdc:Bounds height="55.0" width="105.0" x="421.0" y="240.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40.0" width="40.0" x="570.0" y="247.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask4" id="BPMNShape_usertask4">
+        <omgdc:Bounds height="55.0" width="105.0" x="700.0" y="330.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
+        <omgdc:Bounds height="40.0" width="40.0" x="850.0" y="337.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="853.0" y="250.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
+        <omgdc:Bounds height="35.0" width="35.0" x="1020.0" y="340.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="mailtask1" id="BPMNShape_mailtask1">
+        <omgdc:Bounds height="61.0" width="105.0" x="700.0" y="237.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask1" id="BPMNShape_scripttask1">
+        <omgdc:Bounds height="58.0" width="105.0" x="190.0" y="239.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="370.0" y="267.0"></omgdi:waypoint>
+        <omgdi:waypoint x="421.0" y="267.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="590.0" y="287.0"></omgdi:waypoint>
+        <omgdi:waypoint x="590.0" y="357.0"></omgdi:waypoint>
+        <omgdi:waypoint x="700.0" y="357.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="62.0" x="601.0" y="309.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="805.0" y="357.0"></omgdi:waypoint>
+        <omgdi:waypoint x="850.0" y="357.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="890.0" y="357.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1020.0" y="357.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="78.0" x="889.0" y="330.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="870.0" y="377.0"></omgdi:waypoint>
+        <omgdi:waypoint x="869.0" y="443.0"></omgdi:waypoint>
+        <omgdi:waypoint x="349.0" y="443.0"></omgdi:waypoint>
+        <omgdi:waypoint x="350.0" y="287.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="38.0" x="881.0" y="389.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="526.0" y="267.0"></omgdi:waypoint>
+        <omgdi:waypoint x="570.0" y="267.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="805.0" y="267.0"></omgdi:waypoint>
+        <omgdi:waypoint x="853.0" y="267.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="610.0" y="267.0"></omgdi:waypoint>
+        <omgdi:waypoint x="700.0" y="267.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="47.0" x="619.0" y="247.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="155.0" y="267.0"></omgdi:waypoint>
+        <omgdi:waypoint x="190.0" y="268.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="295.0" y="268.0"></omgdi:waypoint>
+        <omgdi:waypoint x="330.0" y="267.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

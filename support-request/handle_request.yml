@@ -1,0 +1,54 @@
+form:
+  css_class: col-xs-12 col-sm-6 col-md-5 col-lg-4
+  fields:
+    - name: static1
+      type: static
+      html: <div class="alert alert-warning">If you don't complete this task in <b>5 minutes</b> it will be automatically escalated to Lead Support Engineer</div>
+      css_class: col-xs-12
+    - name: group1
+      type: group
+      label: Request Data
+      css_class: col-xs-12
+      fields:
+        - name: homsOrderDataRequesterName
+          type: string
+          label: Requester Name
+          css_class: col-xs-6 col-sm-4 col-md-3
+          editable: false
+        - name: homsOrderDataRequesterPhone
+          type: string
+          label: Requester Phone
+          css_class: col-xs-6 col-sm-4 col-md-3
+          pattern: +1 ({{999}}) {{999}}-{{99}}-{{99}}
+          editable: false
+        - name: homsOrderDataSubject
+          type: string
+          label: Subject
+          css_class: col-xs-8 col-sm-7 col-md-10 clear-both
+          editable: false
+        - name: homsOrderDataDescription
+          type: text
+          rows: 3
+          label: Description
+          css_class: col-xs-12
+          editable: false
+    - name: group2
+      type: group
+      label: Request Resolution
+      css_class: col-xs-12
+      fields:
+        - name: homsOrderDataResolutionText
+          type: text
+          rows: 3
+          label: Resolution
+          css_class: col-xs-12
+    - name: homsOrderDataResolution
+      type: submit_select
+      css_class: col-xs-12
+      options:
+        - name: Solve
+          value: Solved
+          css_class: btn btn-primary
+        - name: Need Help
+          value: NeedHelp
+          css_class: btn btn-warning

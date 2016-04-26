@@ -1,0 +1,56 @@
+form:
+  css_class: col-xs-12 col-sm-6 col-md-5 col-lg-4
+  fields:
+    - name: group1
+      type: group
+      label: Request Data
+      css_class: col-xs-12
+      fields:
+        - name: homsOrderDataEmployeeFirstName
+          type: string
+          label: First Name
+          css_class: col-xs-6 col-sm-4 col-md-3
+          editable: false
+        - name: homsOrderDataEmployeeLastName
+          type: string
+          label: Last Name
+          css_class: col-xs-6 col-sm-4 col-md-3
+          editable: false
+        - name: homsOrderDataBeginDate
+          type: datetime
+          label: Begin Date
+          css_class: col-xs-6 col-sm-4 col-md-3
+          format: DD.MM.YYYY
+          editable: false
+        - name: homsOrderDataEndDate
+          type: datetime
+          label: End Date
+          css_class: col-xs-6 col-sm-4 col-md-3
+          format: DD.MM.YYYY
+          editable: false
+        - name: homsOrderDataMotivationText
+          type: text
+          rows: 3
+          label: Motivation
+          css_class: col-xs-12
+          editable: false
+    - name: group2
+      type: group
+      label: Request Resolution
+      css_class: col-xs-12
+      fields:
+        - name: homsOrderDataResolutionText
+          type: text
+          rows: 3
+          label: Resolution
+          css_class: col-xs-12
+    - name: homsOrderDataResolution
+      type: submit_select
+      css_class: col-xs-12
+      options:
+        - name: Approve
+          value: Approved
+          css_class: btn btn-primary
+        - name: Disapprove
+          value: Disapproved
+          css_class: btn btn-danger
