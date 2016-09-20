@@ -3,7 +3,7 @@ form:
   fields:
     - name: static1
       type: static
-      html: <div class="alert alert-info"><h4>You are performing this task as <b>the Lead Support Engineer</b> by escalation</h4> <small>In production mode this task is invisible for 1st and 2nd Line Support Engineers and should be done by Lead Support Engineer</small></div>
+      html: <div class="alert alert-info"><h4>You are performing this task as <b>the Lead Support Engineer</b></h4> <small>In production mode this task is invisible for 1st and 2nd Line Support Engineers and should be done by Lead Support Engineer</small></div>
       css_class: col-xs-12
     - name: group1
       type: group

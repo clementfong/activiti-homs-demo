@@ -43,7 +43,7 @@ execution.setVariable("homsPassword", "RENEWMEPLEASE")</script>
       </extensionElements>
     </endEvent>
     <sequenceFlow id="flow8" sourceRef="subprocess1" targetRef="endevent3"></sequenceFlow>
-    <userTask id="usertask3" name="Hand Over Request by Escalation" activiti:assignee="${initiator}" activiti:formKey="solve_request_escalation.yml"></userTask>
+    <userTask id="usertask3" name="Hand Over Escalated Request" activiti:assignee="${initiator}" activiti:formKey="solve_request_escalation.yml"></userTask>
     <boundaryEvent id="boundarytimer1" name="Timer" attachedToRef="subprocess1" cancelActivity="true">
       <timerEventDefinition>
         <timeDuration>PT5M</timeDuration>
